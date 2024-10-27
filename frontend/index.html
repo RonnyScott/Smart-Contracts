@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIT Assignment 2</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>BIT Assignment 2 - Smart Contract Interaction</h1>
+    <div>
+        <label>Enter a Number:</label>
+        <input type="number" id="numberInput" />
+        <button onclick="setNumber()">Set Number</button>
+    </div>
+    <div>
+        <button onclick="getNumber()">Get Stored Number</button>
+        <p id="output"></p>
+    </div>
+
+    <script>
+        const contractAddress = "0x1f1cEF7A1BEaB31242F9e7FaF4ae05a270bceB65"; // Replace with your contract address
+        const abi = [
+            {
+                "inputs": [{"internalType": "uint256", "name": "_number", "type": "uint256"}],
+                "name": "setNumber",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getNumber",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        let web3;
+        let contract;
+
+        async function init() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: 'eth_requestAccounts' }); // Updated for newer versions of MetaMask
+                contract = new web3.eth.Contract(abi, contractAddress);
+            } else {
+                alert("Please install MetaMask to interact with this dApp.");
+            }
+        }
+
+        async function setNumber() {
+            const accounts = await web3.eth.getAccounts();
+            const number = document.getElementById("numberInput").value;
+            await contract.methods.setNumber(number).send({ from: accounts[0] });
+            alert("Number set successfully!");
+        }
+
+        async function getNumber() {
+            const result = await contract.methods.getNumber().call();
+            document.getElementById("output").innerText = "Stored Number: " + result;
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
